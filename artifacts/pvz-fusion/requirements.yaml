@@ -1,0 +1,19 @@
+packages:
+  "zustand": "State management for language toggle"
+  "framer-motion": "For page transitions and interactive animations"
+  "react-hook-form": "For form state management in admin panel"
+  "@hookform/resolvers": "For zod validation in forms"
+  "zod": "Schema validation"
+  "lucide-react": "Icons"
+  "clsx": "Utility for conditional classes"
+  "tailwind-merge": "Utility for merging tailwind classes"
+  "date-fns": "For formatting dates"
+
+images:
+  - path: "artifacts/pvz-fusion/public/images/hero-bg.png"
+    description: "Dark retro gaming garden landscape with glowing green toxic elements, mysterious atmosphere, pixel art inspired vibes"
+    aspect_ratio: "16:9"
+
+notes:
+  - "Import React Query hooks from @workspace/api-client-react"
+  - "Using zustand for language (vi/en) state"

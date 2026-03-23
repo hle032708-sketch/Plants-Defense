@@ -1,22 +1,30 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: PvZ Fusion Hub API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication
+  - name: mods
+    description: Mod management
+  - name: fusions
+    description: Fusion management
+  - name: videos
+    description: Video management
+  - name: categories
+    description: Category management
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +32,522 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /user:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user
+      responses:
+        "200":
+          description: Current user or null
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserOrNull"
+
+  /login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout
+      responses:
+        "200":
+          description: Logged out
+
+  /register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: Registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /mods:
+    get:
+      operationId: getMods
+      tags: [mods]
+      summary: Get all mods
+      responses:
+        "200":
+          description: List of mods
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Mod"
+    post:
+      operationId: createMod
+      tags: [mods]
+      summary: Create a mod
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateModRequest"
+      responses:
+        "201":
+          description: Created mod
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mod"
+
+  /mods/{id}:
+    get:
+      operationId: getMod
+      tags: [mods]
+      summary: Get a mod
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Mod
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mod"
+    put:
+      operationId: updateMod
+      tags: [mods]
+      summary: Update a mod
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateModRequest"
+      responses:
+        "200":
+          description: Updated mod
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mod"
+    delete:
+      operationId: deleteMod
+      tags: [mods]
+      summary: Delete a mod
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /fusions:
+    get:
+      operationId: getFusions
+      tags: [fusions]
+      summary: Get all fusions
+      responses:
+        "200":
+          description: List of fusions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Fusion"
+    post:
+      operationId: createFusion
+      tags: [fusions]
+      summary: Create a fusion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateFusionRequest"
+      responses:
+        "201":
+          description: Created fusion
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Fusion"
+
+  /fusions/{id}:
+    put:
+      operationId: updateFusion
+      tags: [fusions]
+      summary: Update a fusion
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateFusionRequest"
+      responses:
+        "200":
+          description: Updated fusion
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Fusion"
+    delete:
+      operationId: deleteFusion
+      tags: [fusions]
+      summary: Delete a fusion
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /videos:
+    get:
+      operationId: getVideos
+      tags: [videos]
+      summary: Get all videos
+      responses:
+        "200":
+          description: List of videos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Video"
+    post:
+      operationId: createVideo
+      tags: [videos]
+      summary: Create a video
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateVideoRequest"
+      responses:
+        "201":
+          description: Created video
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Video"
+
+  /videos/{id}:
+    put:
+      operationId: updateVideo
+      tags: [videos]
+      summary: Update a video
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateVideoRequest"
+      responses:
+        "200":
+          description: Updated video
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Video"
+    delete:
+      operationId: deleteVideo
+      tags: [videos]
+      summary: Delete a video
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /categories:
+    get:
+      operationId: getCategories
+      tags: [categories]
+      summary: Get all categories
+      responses:
+        "200":
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
+    post:
+      operationId: createCategory
+      tags: [categories]
+      summary: Create a category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCategoryRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+
+  /categories/{id}:
+    put:
+      operationId: updateCategory
+      tags: [categories]
+      summary: Update a category
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCategoryRequest"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+    delete:
+      operationId: deleteCategory
+      tags: [categories]
+      summary: Delete a category
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /categories/{id}/items:
+    get:
+      operationId: getCategoryItems
+      tags: [categories]
+      summary: Get items in a category
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CategoryItem"
+    post:
+      operationId: createCategoryItem
+      tags: [categories]
+      summary: Create a category item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCategoryItemRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoryItem"
+
+  /category-items/{id}:
+    put:
+      operationId: updateCategoryItem
+      tags: [categories]
+      summary: Update a category item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCategoryItemRequest"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoryItem"
+    delete:
+      operationId: deleteCategoryItem
+      tags: [categories]
+      summary: Delete a category item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /settings/{key}:
+    get:
+      operationId: getSetting
+      tags: [health]
+      summary: Get a setting
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Setting value
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Setting"
+    post:
+      operationId: setSetting
+      tags: [health]
+      summary: Set a setting
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetSettingRequest"
+      responses:
+        "200":
+          description: Updated
+
+  /upload:
+    post:
+      operationId: uploadFile
+      tags: [auth]
+      summary: Upload a file
+      responses:
+        "200":
+          description: Upload result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadResponse"
+
+  /search:
+    get:
+      operationId: search
+      tags: [health]
+      summary: Search
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchResults"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +558,396 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        role:
+          type: string
+      required:
+        - id
+        - email
+        - role
+
+    UserOrNull:
+      oneOf:
+        - $ref: "#/components/schemas/User"
+        - type: "null"
+
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required:
+        - email
+        - password
+
+    RegisterRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required:
+        - email
+        - password
+
+    Mod:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        version:
+          type: string
+        description:
+          type: string
+        changelog:
+          type: string
+          nullable: true
+        imageUrl:
+          type: string
+        fileUrl:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - title
+        - version
+        - description
+        - imageUrl
+        - fileUrl
+        - createdAt
+
+    CreateModRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        version:
+          type: string
+        description:
+          type: string
+        changelog:
+          type: string
+        imageUrl:
+          type: string
+        fileUrl:
+          type: string
+      required:
+        - title
+        - version
+        - description
+        - imageUrl
+        - fileUrl
+
+    UpdateModRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        version:
+          type: string
+        description:
+          type: string
+        changelog:
+          type: string
+        imageUrl:
+          type: string
+        fileUrl:
+          type: string
+
+    Fusion:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        type:
+          type: string
+        recipe:
+          type: string
+        ability:
+          type: string
+        imageUrl:
+          type: string
+        fileUrl:
+          type: string
+          nullable: true
+        videoUrl:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+      required:
+        - id
+        - name
+        - type
+        - recipe
+        - ability
+        - imageUrl
+        - createdAt
+
+    CreateFusionRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        recipe:
+          type: string
+        ability:
+          type: string
+        imageUrl:
+          type: string
+        fileUrl:
+          type: string
+        videoUrl:
+          type: string
+      required:
+        - name
+        - type
+        - recipe
+        - ability
+        - imageUrl
+
+    UpdateFusionRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        recipe:
+          type: string
+        ability:
+          type: string
+        imageUrl:
+          type: string
+        fileUrl:
+          type: string
+        videoUrl:
+          type: string
+
+    Video:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        thumbnailUrl:
+          type: string
+        youtubeUrl:
+          type: string
+        downloadUrl:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+      required:
+        - id
+        - title
+        - thumbnailUrl
+        - youtubeUrl
+        - createdAt
+
+    CreateVideoRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        thumbnailUrl:
+          type: string
+        youtubeUrl:
+          type: string
+        downloadUrl:
+          type: string
+        description:
+          type: string
+      required:
+        - title
+        - thumbnailUrl
+        - youtubeUrl
+
+    UpdateVideoRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        thumbnailUrl:
+          type: string
+        youtubeUrl:
+          type: string
+        downloadUrl:
+          type: string
+        description:
+          type: string
+
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+        imageUrl:
+          type: string
+          nullable: true
+        linkUrl:
+          type: string
+          nullable: true
+      required:
+        - id
+        - name
+        - slug
+
+    CreateCategoryRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+        imageUrl:
+          type: string
+        linkUrl:
+          type: string
+      required:
+        - name
+        - slug
+
+    UpdateCategoryRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+        imageUrl:
+          type: string
+        linkUrl:
+          type: string
+
+    CategoryItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        categoryId:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+          nullable: true
+        imageUrl:
+          type: string
+          nullable: true
+        linkUrl:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+      required:
+        - id
+        - categoryId
+        - title
+        - createdAt
+
+    CreateCategoryItemRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        imageUrl:
+          type: string
+        linkUrl:
+          type: string
+      required:
+        - title
+
+    UpdateCategoryItemRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        imageUrl:
+          type: string
+        linkUrl:
+          type: string
+
+    Setting:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+      required:
+        - key
+        - value
+
+    SetSettingRequest:
+      type: object
+      properties:
+        value:
+          type: string
+      required:
+        - value
+
+    UploadResponse:
+      type: object
+      properties:
+        url:
+          type: string
+      required:
+        - url
+
+    SearchResults:
+      type: object
+      properties:
+        mods:
+          type: array
+          items:
+            $ref: "#/components/schemas/Mod"
+        fusions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Fusion"
+        videos:
+          type: array
+          items:
+            $ref: "#/components/schemas/Video"
+      required:
+        - mods
+        - fusions
+        - videos

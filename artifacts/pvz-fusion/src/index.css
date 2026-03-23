@@ -1,0 +1,172 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Press+Start+2P&family=Rubik:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+@import "tw-animate-css";
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: 'Rubik', sans-serif;
+  --font-display: 'Fredoka', sans-serif;
+  --font-gaming: 'Press Start 2P', cursive;
+
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-card-border: hsl(var(--border));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-popover-border: hsl(var(--border));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --color-sidebar: hsl(var(--sidebar));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  /* PvZ Inspired Palette - Dark Gaming Theme */
+  --background: 222 47% 11%;
+  --foreground: 210 40% 98%;
+
+  --card: 222 47% 14%;
+  --card-foreground: 210 40% 98%;
+
+  --popover: 222 47% 14%;
+  --popover-foreground: 210 40% 98%;
+
+  --primary: 100 58% 45%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 48 96% 53%;
+  --secondary-foreground: 20 14% 4%;
+
+  --muted: 217 33% 17%;
+  --muted-foreground: 215 20% 65%;
+
+  --accent: 262 83% 58%;
+  --accent-foreground: 210 40% 98%;
+
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 210 40% 98%;
+
+  --border: 217 33% 20%;
+  --input: 217 33% 20%;
+  --ring: 100 58% 45%;
+
+  --sidebar: 222 47% 10%;
+  --sidebar-foreground: 210 40% 98%;
+  --sidebar-border: 217 33% 20%;
+
+  --radius: 0.75rem;
+}
+
+@layer base {
+  * {
+    @apply border-border selection:bg-primary/30 selection:text-primary-foreground;
+  }
+  
+  html, body {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-background text-foreground min-h-screen antialiased;
+    background: 
+      radial-gradient(at 0% 0%, hsla(var(--primary)/0.12) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, hsla(var(--secondary)/0.10) 0px, transparent 50%),
+      radial-gradient(at 50% 100%, hsla(var(--accent)/0.08) 0px, transparent 50%),
+      hsl(var(--background));
+    background-attachment: fixed;
+    font-family: var(--font-sans);
+    text-rendering: geometricPrecision;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    @apply font-bold tracking-tight;
+  }
+}
+
+@layer utilities {
+  .font-gaming {
+    font-family: var(--font-gaming);
+    letter-spacing: -0.02em;
+  }
+
+  .text-shadow {
+    text-shadow: 0 0 15px hsla(var(--primary) / 0.5);
+  }
+
+  .glow-green {
+    @apply bg-primary text-primary-foreground shadow-[0_0_20px_-5px_hsl(var(--primary)/0.5)] hover:shadow-[0_0_25px_-2px_hsl(var(--primary)/0.6)] transition-all duration-300;
+  }
+
+  .hover-elevate {
+    @apply transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10;
+  }
+
+  .glass-card {
+    @apply border border-white/10 bg-card/40 backdrop-blur-md hover:bg-card/50 transition-colors duration-300;
+  }
+
+  /* ─── Wiki Section Panels ─── */
+  .wiki-panel {
+    @apply border border-border rounded-lg overflow-hidden bg-card/40;
+  }
+
+  .wiki-section-title {
+    @apply flex items-center gap-2 py-2 px-3 border-l-4 border-l-primary border-b border-b-border;
+    background: linear-gradient(to right, hsla(var(--primary) / 0.18), hsla(var(--primary) / 0.04));
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.01em;
+  }
+
+  .wiki-section-title.accent {
+    @apply border-l-accent;
+    background: linear-gradient(to right, hsla(var(--accent) / 0.18), hsla(var(--accent) / 0.04));
+  }
+
+  .wiki-section-title.secondary {
+    @apply border-l-secondary;
+    background: linear-gradient(to right, hsla(var(--secondary) / 0.18), hsla(var(--secondary) / 0.04));
+  }
+
+  .wiki-section-body {
+    @apply p-4;
+  }
+
+  .hero-grid {
+    background-size: 40px 40px;
+    background-image: 
+      linear-gradient(to right, hsla(var(--primary)/0.1) 1px, transparent 1px),
+      linear-gradient(to bottom, hsla(var(--primary)/0.1) 1px, transparent 1px);
+  }
+}

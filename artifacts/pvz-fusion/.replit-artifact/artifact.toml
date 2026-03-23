@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "PvZ Fusion Hub"
+version = "1.0.0"
+id = "artifacts/pvz-fusion"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 19035
+
+[services.development]
+run = "pnpm --filter @workspace/pvz-fusion run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/pvz-fusion", "run", "build" ]
+publicDir = "artifacts/pvz-fusion/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "19035"
+BASE_PATH = "/"
