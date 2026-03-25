@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
-import { Shield, Plus, Edit2, Trash2, Upload, Link as LinkIcon, X } from "lucide-react";
+import { Shield, Plus, Edit2, Trash2, Upload, Link as LinkIcon, X, Power, Globe } from "lucide-react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLanguage } from "@/hooks/use-language";
 import {
   useGetMe, useGetMods, useCreateMod, useUpdateMod, useDeleteMod,
@@ -142,6 +143,55 @@ function ImageInput({ value, onChange, label = "Image" }: {
   );
 }
 
+function MaintenanceToggle() {
+  const { toast } = useToast();
+
+  const { data, refetch } = useQuery({
+    queryKey: ["/api/settings/maintenance"],
+    queryFn: () =>
+      fetch("/api/settings/maintenance", { credentials: "include" })
+        .then(r => r.ok ? r.json() : { value: "false" }),
+  });
+
+  const isOn = data?.value === "true";
+
+  const toggle = useMutation({
+    mutationFn: (val: boolean) =>
+      fetch("/api/settings/maintenance", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ value: val ? "true" : "false" }),
+      }),
+    onSuccess: (_, val) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/settings/maintenance"] });
+      refetch();
+      toast({ title: val ? "Đã bật chế độ bảo trì" : "Đã tắt chế độ bảo trì" });
+    },
+  });
+
+  return (
+    <div className={`flex items-center gap-4 rounded-2xl border p-4 transition-colors ${isOn ? "border-destructive/40 bg-destructive/10" : "border-border bg-card/40"}`}>
+      <div className={`grid h-12 w-12 shrink-0 place-items-center rounded-xl ${isOn ? "bg-destructive/20 text-destructive" : "bg-card text-muted-foreground"}`}>
+        <Power className="h-6 w-6" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="font-bold text-foreground">Chế độ bảo trì</div>
+        <div className="text-sm text-muted-foreground">
+          {isOn ? "Web đang TẮT — người dùng thấy trang bảo trì" : "Web đang HOẠT ĐỘNG bình thường"}
+        </div>
+      </div>
+      <button
+        onClick={() => toggle.mutate(!isOn)}
+        disabled={toggle.isPending}
+        className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus-visible:outline-none disabled:opacity-50 ${isOn ? "bg-destructive" : "bg-muted"}`}
+      >
+        <span className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-lg ring-0 transition-transform ${isOn ? "translate-x-5" : "translate-x-0"}`} />
+      </button>
+    </div>
+  );
+}
+
 export default function Admin() {
   const { data: user } = useGetMe();
 
@@ -163,18 +213,26 @@ export default function Admin() {
         description="Manage your database of mods, fusions, videos, and categories."
       />
 
-      <Tabs defaultValue="mods" className="mt-8">
+      <div className="mt-6 mb-8">
+        <MaintenanceToggle />
+      </div>
+
+      <Tabs defaultValue="mods" className="mt-2">
         <TabsList className="bg-card/50 border border-border rounded-xl p-1 mb-6 flex-wrap h-auto gap-1">
           <TabsTrigger value="mods" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Mods</TabsTrigger>
           <TabsTrigger value="fusions" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Fusions</TabsTrigger>
           <TabsTrigger value="videos" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Videos</TabsTrigger>
           <TabsTrigger value="categories" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Categories</TabsTrigger>
+          <TabsTrigger value="servers" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <Globe className="w-3.5 h-3.5 mr-1" />Servers
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="mods"><AdminModsTab /></TabsContent>
         <TabsContent value="fusions"><AdminFusionsTab /></TabsContent>
         <TabsContent value="videos"><AdminVideosTab /></TabsContent>
         <TabsContent value="categories"><AdminCategoriesTab /></TabsContent>
+        <TabsContent value="servers"><AdminServersTab /></TabsContent>
       </Tabs>
     </div>
   );
@@ -379,6 +437,106 @@ function AdminCategoriesTab() {
             ))}
             {(!categories || categories.length === 0) && (
               <tr><td colSpan={3} className="px-4 py-8 text-center text-muted-foreground">No categories found</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+type ServerItem = { id: number; name: string; url: string };
+
+function AdminServersTab() {
+  const { toast } = useToast();
+  const [name, setName] = useState("");
+  const [url, setUrl] = useState("");
+
+  const { data: servers = [], refetch } = useQuery<ServerItem[]>({
+    queryKey: ["/api/servers"],
+    queryFn: () => fetch("/api/servers", { credentials: "include" }).then(r => r.json()),
+  });
+
+  const addServer = useMutation({
+    mutationFn: (data: { name: string; url: string }) =>
+      fetch("/api/servers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(data),
+      }),
+    onSuccess: () => {
+      setName(""); setUrl("");
+      queryClient.invalidateQueries({ queryKey: ["/api/servers"] });
+      refetch();
+      toast({ title: "Đã thêm server" });
+    },
+    onError: () => toast({ variant: "destructive", title: "Lỗi thêm server" }),
+  });
+
+  const deleteServer = useMutation({
+    mutationFn: (id: number) =>
+      fetch(`/api/servers/${id}`, { method: "DELETE", credentials: "include" }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/servers"] });
+      refetch();
+      toast({ title: "Đã xóa server" });
+    },
+  });
+
+  const handleAdd = () => {
+    if (!name.trim() || !url.trim()) return;
+    const fullUrl = url.startsWith("http") ? url : `https://${url}`;
+    addServer.mutate({ name: name.trim(), url: fullUrl });
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="rounded-2xl border border-border bg-card/40 p-5 space-y-4">
+        <p className="text-sm font-semibold text-foreground">Thêm server mới</p>
+        <p className="text-xs text-muted-foreground">Các server này sẽ hiện trên trang bảo trì để người dùng chuyển sang.</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label className="text-xs uppercase font-bold tracking-wider text-muted-foreground mb-1.5 block">Tên server</label>
+            <Input value={name} onChange={e => setName(e.target.value)} placeholder="Server Dự Phòng 1" />
+          </div>
+          <div>
+            <label className="text-xs uppercase font-bold tracking-wider text-muted-foreground mb-1.5 block">Link (URL)</label>
+            <Input value={url} onChange={e => setUrl(e.target.value)} placeholder="https://pvz-backup.com" />
+          </div>
+        </div>
+        <div className="flex justify-end">
+          <Button onClick={handleAdd} disabled={!name.trim() || !url.trim() || addServer.isPending} className="gap-2 bg-primary">
+            <Globe className="w-4 h-4" /> Thêm server
+          </Button>
+        </div>
+      </div>
+
+      <div className="bg-card/40 border border-border rounded-xl overflow-hidden">
+        <table className="w-full text-sm text-left">
+          <thead className="bg-card/80 border-b border-border text-muted-foreground">
+            <tr>
+              <th className="px-4 py-3 font-semibold">Tên</th>
+              <th className="px-4 py-3 font-semibold">URL</th>
+              <th className="px-4 py-3 font-semibold text-right">Xóa</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border/50">
+            {servers.map(sv => (
+              <tr key={sv.id} className="hover:bg-background/50">
+                <td className="px-4 py-3 font-medium">{sv.name}</td>
+                <td className="px-4 py-3 text-muted-foreground text-xs max-w-[200px] truncate">
+                  <a href={sv.url} target="_blank" rel="noreferrer" className="hover:text-primary">{sv.url}</a>
+                </td>
+                <td className="px-4 py-3 text-right">
+                  <Button variant="ghost" size="icon" onClick={() => confirm("Xóa server này?") && deleteServer.mutate(sv.id)}>
+                    <Trash2 className="w-4 h-4 text-destructive" />
+                  </Button>
+                </td>
+              </tr>
+            ))}
+            {servers.length === 0 && (
+              <tr><td colSpan={3} className="px-4 py-8 text-center text-muted-foreground">Chưa có server nào</td></tr>
             )}
           </tbody>
         </table>
