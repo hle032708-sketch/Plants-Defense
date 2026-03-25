@@ -1,5 +1,5 @@
 import { Switch, Route, Router as WouterRouter } from "wouter";
-import { QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { queryClient } from "@/lib/queryClient";
@@ -17,9 +17,34 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Admin from "./pages/Admin";
 import CategoryPage from "./pages/CategoryPage";
+import Maintenance from "./pages/Maintenance";
 import NotFound from "./pages/not-found";
 
 function Router() {
+  const { data: maintenanceSetting } = useQuery({
+    queryKey: ["/api/settings/maintenance"],
+    queryFn: () =>
+      fetch("/api/settings/maintenance", { credentials: "include" })
+        .then(r => r.ok ? r.json() : { value: "false" }),
+    refetchInterval: 30_000,
+    staleTime: 15_000,
+  });
+
+  const { data: me } = useQuery({
+    queryKey: ["/api/user"],
+    queryFn: () =>
+      fetch("/api/user", { credentials: "include" })
+        .then(r => r.ok ? r.json() : null),
+    staleTime: 60_000,
+  });
+
+  const isMaintenanceOn = maintenanceSetting?.value === "true";
+  const isAdmin = (me as any)?.role === "ADMIN";
+
+  if (isMaintenanceOn && !isAdmin) {
+    return <Maintenance />;
+  }
+
   return (
     <div className="relative min-h-screen bg-background text-foreground flex">
       <MouseGlow />

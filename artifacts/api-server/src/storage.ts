@@ -1,9 +1,10 @@
 import { db, pool } from "@workspace/db";
 import {
-  users, mods, fusions, videos, categories, categoryItems, settings,
+  users, mods, fusions, videos, categories, categoryItems, settings, servers,
   type User, type InsertUser, type Mod, type InsertMod,
   type Fusion, type InsertFusion, type Video, type InsertVideo,
   type Category, type InsertCategory, type CategoryItem, type InsertCategoryItem,
+  type Server,
 } from "@workspace/db";
 import { eq, desc } from "drizzle-orm";
 import session from "express-session";
@@ -161,6 +162,19 @@ export class Storage {
       target: settings.key,
       set: { value },
     });
+  }
+
+  async getServers(): Promise<Server[]> {
+    return db.select().from(servers).orderBy(servers.createdAt);
+  }
+
+  async createServer(data: { name: string; url: string }): Promise<Server> {
+    const [s] = await db.insert(servers).values(data).returning();
+    return s;
+  }
+
+  async deleteServer(id: number): Promise<void> {
+    await db.delete(servers).where(eq(servers.id, id));
   }
 
   async searchAll(q: string) {

@@ -265,6 +265,26 @@ router.post("/settings/:key", requireAdmin, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// ── Servers (maintenance page alternative servers) ──
+router.get("/servers", async (req, res, next) => {
+  try { res.json(await storage.getServers()); } catch (err) { next(err); }
+});
+
+router.post("/servers", requireAdmin, async (req, res, next) => {
+  try {
+    const { name, url } = req.body;
+    if (!name || !url) return res.status(400).json({ message: "name và url là bắt buộc" });
+    res.status(201).json(await storage.createServer({ name, url }));
+  } catch (err) { next(err); }
+});
+
+router.delete("/servers/:id", requireAdmin, async (req, res, next) => {
+  try {
+    await storage.deleteServer(Number(req.params.id));
+    res.json({ ok: true });
+  } catch (err) { next(err); }
+});
+
 // ── Search ──
 router.get("/search", async (req, res, next) => {
   try {

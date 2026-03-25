@@ -68,6 +68,18 @@ export const settings = pgTable("settings", {
   value: text("value").notNull(),
 });
 
+export const servers = pgTable("servers", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  url: text("url").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertServerSchema = createInsertSchema(servers).omit({ id: true, createdAt: true });
+
+export type Server = typeof servers.$inferSelect;
+export type InsertServer = z.infer<typeof insertServerSchema>;
+
 export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true });
 export const insertModSchema = createInsertSchema(mods).omit({ id: true, createdAt: true });
 export const insertFusionSchema = createInsertSchema(fusions).omit({ id: true, createdAt: true });
