@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import type { Mod } from "@workspace/api-client-react/src/generated/api.schemas";
+import type { Mod } from "@workspace/api-client-react";
 
 export default function Mods() {
   const { t } = useLanguage();
