@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import type { Fusion } from "@workspace/api-client-react/src/generated/api.schemas";
+import type { Fusion } from "@workspace/api-client-react";
 
 export default function FusionDex() {
   const { t } = useLanguage();

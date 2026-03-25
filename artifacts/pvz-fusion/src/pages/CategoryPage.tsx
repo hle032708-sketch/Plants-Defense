@@ -10,7 +10,7 @@ export default function CategoryPage() {
   const { data: categories } = useGetCategories();
   
   const category = categories?.find(c => c.slug === slug);
-  const { data: items, isLoading } = useGetCategoryItems(category?.id ?? 0, { query: { enabled: !!category?.id } });
+  const { data: items, isLoading } = useGetCategoryItems(category?.id ?? 0, { query: { enabled: !!category?.id } as any });
 
   if (!category && !isLoading) {
     return (
