@@ -30,7 +30,13 @@ if (!basePath) {
 export default defineConfig({
   build: {
     minify: true,
-    chunkSizeWarningLimit: 5000
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ["express", "pino-http"]
+        }
+      }
+    }
   },
   base: basePath,
   plugins: [
