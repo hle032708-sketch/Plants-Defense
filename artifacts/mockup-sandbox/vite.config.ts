@@ -28,6 +28,16 @@ if (!basePath) {
 }
 
 export default defineConfig({
+  build: {
+    minify: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ["express", "pino-http"]
+        }
+      }
+    }
+  },
   base: basePath,
   plugins: [
     mockupPreviewPlugin(),
