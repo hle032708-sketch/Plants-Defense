@@ -28,6 +28,10 @@ if (!basePath) {
 }
 
 export default defineConfig({
+  build: {
+    minify: true,
+    chunkSizeWarningLimit: 5000
+  },
   base: basePath,
   plugins: [
     mockupPreviewPlugin(),
